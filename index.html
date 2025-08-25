@@ -2,88 +2,32 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
+  <title>Métodos Numéricos — Menu</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bolzano + Bissecção — Polinômios</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="./menu.css" />
 </head>
 <body>
-  <main class="wrap">
-    <h1>Bolzano + Bissecção — Polinômios</h1>
+  <main class="container">
+    <header class="topo">
+      <h1>Métodos Numéricos</h1>
+      <p>Selecione o método que deseja utilizar</p>
+    </header>
 
-    <form id="form" class="card" novalidate>
-      <div class="grid">
-        <label>Grau (n)
-          <input id="degree" type="number" min="0" max="20" step="1" placeholder="ex.: 3" />
-        </label>
-        <label>Precisão (ε)
-          <input id="tol" type="text" inputmode="decimal" value="1e-6" />
-        </label>
-        <label>Subdivisões p/ Bolzano (M)
-          <input id="M" type="number" min="1" max="100000" step="1" value="200" />
-        </label>
-      </div>
+    <section class="grid">
+      <a class="card" href="./bisseccao.html">
+        <h2>Bissecção</h2>
+        <p>Encontrar raízes de polinômios com mudança de sinal em um intervalo.</p>
+        <span class="cta">Abrir</span>
+      </a>
 
-      <div class="row">
-        <button type="button" id="gen">Gerar campos dos coeficientes</button>
-        <span id="polyPreview" class="chip">P(x) = —</span>
-      </div>
-
-      <div id="coeffs" class="coeffs"></div>
-
-      <div class="grid">
-        <label>Limite inferior (A)
-          <input id="A" type="text" inputmode="decimal" placeholder="ex.: -2" />
-        </label>
-        <label>Limite superior (B)
-          <input id="B" type="text" inputmode="decimal" placeholder="ex.: 3" />
-        </label>
-      </div>
-
-      <div class="row">
-        <button type="submit">Encontrar intervalos e refinar</button>
-        <button type="button" id="clear" class="secondary">Limpar</button>
-      </div>
-    </form>
-
-    <section class="card">
-      <h2>Intervalos com troca de sinal (Bolzano)</h2>
-      <p class="muted">Varredura em M subintervalos dentro de [A,B]. Listagem de trechos onde f(x) muda de sinal ou zera.</p>
-      <table id="bolzanoTable" class="table" hidden>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>xi</th>
-            <th>xi+1</th>
-            <th>f(xi)</th>
-            <th>f(xi+1)</th>
-            <th>Tipo</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <div id="bolzanoEmpty" class="muted">Nenhum intervalo com troca de sinal foi encontrado ainda.</div>
+      <a class="card" href="./gauss.html">
+        <h2>Sistemas lineares</h2>
+        <h3>Método da Eliminação de Gauss</h3>
+        <p>Resolver Ax = b por eliminação e substituição retroativa (pivotamento opcional).</p>
+        <span class="cta">Abrir</span>
+      </a>
     </section>
 
-    <section class="card">
-      <h2>Refinamento por Bissecção</h2>
-      <table id="refineTable" class="table" hidden>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>[a,b] inicial</th>
-            <th>raiz (x*)</th>
-            <th>f(x*)</th>
-            <th>iterações</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <div id="refineEmpty" class="muted">Aguardando resultados da etapa de Bolzano…</div>
-    </section>
-
-    <p class="muted">Observação: se não aparecerem intervalos, aumente M ou ajuste [A,B].</p>
   </main>
-
-  <script src="app.js"></script>
 </body>
 </html>

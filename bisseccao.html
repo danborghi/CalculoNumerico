@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Calculadora de Raízes — Bissecção</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header__inner">
+      <h1 class="site-title">Calculadora de Raízes</h1>
+      <nav class="site-nav">
+        <a class="nav-link" href="./index.html" title="Voltar ao menu">Menu</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="card">
+      <h2 class="card__title">Definições do Polinômio</h2>
+
+      <div class="grid grid--3">
+        <div class="input-group">
+          <label for="grau">Grau do Polinômio</label>
+          <input type="number" id="grau" value="2" min="1"/>
+        </div>
+
+        <div class="input-group">
+          <label for="limite-a">Intervalo de Busca — a</label>
+          <input type="number" id="limite-a" value="-10" step="0.1"/>
+        </div>
+
+        <div class="input-group">
+          <label for="limite-b">Intervalo de Busca — b</label>
+          <input type="number" id="limite-b" value="10" step="0.1"/>
+        </div>
+
+        <div class="input-group">
+          <label for="erro">Tolerância de Erro</label>
+          <input type="number" id="erro" value="0.001" step="0.0001" min="0"/>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Coeficientes</label>
+        <div id="coeficientes-container" class="coef-inputs"></div>
+      </div>
+
+      <button id="btn-encontrar" class="btn btn--primary btn--full">
+        1. Encontrar Intervalos (Bolzano)
+      </button>
+    </section>
+
+    <section class="card">
+      <h2 class="card__title">Polinômio</h2>
+      <p id="polinomio-display" class="code-block">f(x) = ...</p>
+    </section>
+
+    <section class="card">
+      <h2 class="card__title">2. Escolha um Intervalo para a Bissecção</h2>
+      <div id="intervalos-encontrados" class="intervalos"></div>
+    </section>
+
+    <section class="card">
+      <h2 class="card__title">3. Resultados do Método de Bissecção</h2>
+
+      <p id="raiz-final" class="badge"></p>
+
+      <div class="table-wrap">
+        <table id="tabela-bisseccao" class="table" style="display:none;">
+          <thead>
+            <tr>
+              <th>Iteração</th>
+              <th>a</th>
+              <th>b</th>
+              <th>x</th>
+              <th>f(x)</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <pre id="log-final" class="log" aria-live="polite"></pre>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <small>Interface aprimorada — lógica original preservada.</small>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

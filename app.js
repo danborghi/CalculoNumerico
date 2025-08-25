@@ -1,63 +1,203 @@
-// ===== Utilidades =====
-const toNum = (v) => {
-    const s = String(v ?? '').trim().replace(',', '.');
-    if (!s) return NaN;
-    const x = Number(s);
-    return Number.isFinite(x) ? x : NaN;
-  };
-  
-  const fmt = (x) => {
-    if (!Number.isFinite(x)) return '—';
-    const a = Math.abs(x);
-    if (a === 0) return '0';
-    if (a < 1e-3 || a >= 1e6) return x.toExponential(6);
-    return x.toFixed(8).replace(/0+$/,'').replace(/\.$/,'');
-  };
+document.addEventListener('DOMContentLoaded', () => {
 
-  function f(coeffs, x){
-    let y = 0; for (const a of coeffs) y = y * x + a; return y;
+  criarCamposCoeficientes();
+
+
+  const grauInput = document.getElementById('grau');
+  grauInput.addEventListener('input', criarCamposCoeficientes);
+
+
+  document.getElementById('btn-encontrar')
+      .addEventListener('click', encontrarIntervalos);
+});
+
+
+function criarCamposCoeficientes() {
+  const grau = parseInt(document.getElementById('grau').value) || 0;
+  const container = document.getElementById('coeficientes-container');
+  container.innerHTML = '';
+
+  for (let i = grau; i >= 0; i--) {
+      const item = document.createElement('div');
+      item.className = 'coef-item';
+
+      const label = document.createElement('div');
+      label.className = 'coef-label';
+      label.textContent = (i === 0 ? 'C' : `x^${i}`) + ':';
+
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.className = 'coef-input';
+      input.dataset.grau = String(i);
+      input.step = '0.1';
+      input.value = (i === grau ? 1 : 0);
+      input.addEventListener('input', atualizarPolinomio);
+
+      item.appendChild(label);
+      item.appendChild(input);
+      container.appendChild(item);
   }
-  
-  function bolzano(coeffs, A, B, M){
-    const dx = (B - A) / M;
-    const out = []; // cada item: {i, x0, x1, f0, f1, tipo}
-    let x0 = A, f0 = f(coeffs, x0);
-    if (!Number.isFinite(f0)) throw new Error('Avaliação numérica falhou em A.');
-    for (let i = 1; i <= M; i++){
-      const x1 = (i === M) ? B : A + i*dx;
-      const f1 = f(coeffs, x1);
-      if (!Number.isFinite(f1)) throw new Error('Avaliação numérica falhou em algum ponto.');
-  
-      if (f1 === 0){
-        out.push({ i, x0: x1, x1: x1, f0: f1, f1: f1, tipo: 'raiz exata' });
-      } else if (f0 === 0){
-        out.push({ i, x0: x0, x1: x0, f0: f0, f1: f0, tipo: 'raiz exata' });
-      } else if (f0 * f1 < 0){
-        out.push({ i, x0, x1, f0, f1, tipo: 'troca de sinal' });
+
+  atualizarPolinomio();
+}
+
+function getCoeficientes() {
+  const inputs = document.querySelectorAll('.coef-input');
+  const coefs = {};
+  inputs.forEach((input) => {
+      coefs[input.dataset.grau] = parseFloat(input.value || '0');
+  });
+  return coefs;
+}
+
+function atualizarPolinomio() {
+  const coefs = getCoeficientes();
+  const termos = Object.keys(coefs)
+      .sort((a, b) => parseInt(b) - parseInt(a))
+      .map((grauStr) => {
+          const grau = parseInt(grauStr);
+          const coef = coefs[grauStr];
+          if (!isFinite(coef) || coef === 0) return '';
+
+          const sinal = coef < 0 ? ' - ' : ' + ';
+          const absCoef = Math.abs(coef);
+          const coefStr = absCoef === 1 && grau !== 0 ? '' : absCoef.toString();
+          const xStr = grau === 0 ? '' : (grau === 1 ? 'x' : `x^${grau}`);
+          return `${sinal}${coefStr}${xStr}`;
+      })
+      .filter(Boolean);
+
+  let polinomioStr = 'f(x) = ';
+  if (termos.length === 0) {
+      polinomioStr += '0';
+  } else {
+      let primeira = termos[0].trim();
+      if (primeira.startsWith('+')) primeira = primeira.substring(1).trim();
+      polinomioStr += primeira + termos.slice(1).join('');
+  }
+
+
+  document.getElementById('polinomio-display').textContent =
+      polinomioStr.replace(/\s\+\s-/g, ' - ');
+}
+
+
+function calcularPolinomio(x, coefs) {
+  let resultado = 0;
+  for (const [grauStr, coef] of Object.entries(coefs)) {
+      const grau = parseInt(grauStr);
+      resultado += (coef || 0) * Math.pow(x, grau);
+  }
+  return resultado;
+}
+
+function encontrarIntervalos() {
+  const limiteA = parseFloat(document.getElementById('limite-a').value);
+  const limiteB = parseFloat(document.getElementById('limite-b').value);
+  const coefs = getCoeficientes();
+
+  const intervalosDiv = document.getElementById('intervalos-encontrados');
+  const logFinal = document.getElementById('log-final');
+  const tabela = document.getElementById('tabela-bisseccao');
+
+  intervalosDiv.innerHTML = '';
+  tabela.style.display = 'none';
+  document.getElementById('raiz-final').textContent = '';
+  logFinal.textContent = 'Buscando intervalos...';
+
+
+  if (!isFinite(limiteA) || !isFinite(limiteB) || limiteA >= limiteB) {
+      intervalosDiv.textContent = 'Defina um intervalo válido (a < b).';
+      logFinal.textContent += '\nIntervalo inválido.';
+      return;
+  }
+
+  const intervalos = [];
+
+  for (let x = limiteA; x < limiteB; x++) {
+      const fx = calcularPolinomio(x, coefs);
+      const fx1 = calcularPolinomio(x + 1, coefs);
+      if (fx === 0) intervalos.push([x, x]);
+      if (fx * fx1 < 0) intervalos.push([x, x + 1]);
+  }
+
+  if (intervalos.length === 0) {
+      intervalosDiv.textContent = 'Nenhum intervalo encontrado.';
+      logFinal.textContent += '\nNenhum intervalo válido para o método de Bissecção.';
+      return;
+  }
+
+  intervalos.forEach(([a, b]) => {
+      const btn = document.createElement('button');
+      btn.className = 'interval-btn';
+      btn.textContent = `[${a}, ${b}]`;
+      btn.addEventListener('click', () => calcularBisseccao(a, b));
+      intervalosDiv.appendChild(btn);
+  });
+
+  logFinal.textContent += `\n${intervalos.length} intervalo(s) encontrado(s). Clique em um deles para calcular a raiz.`;
+}
+
+function calcularBisseccao(a, b) {
+  const tolerancia = parseFloat(document.getElementById('erro').value);
+  const coefs = getCoeficientes();
+  const tabela = document.getElementById('tabela-bisseccao');
+  const tabelaBody = tabela.querySelector('tbody');
+  const logFinal = document.getElementById('log-final');
+
+  tabelaBody.innerHTML = '';
+  logFinal.textContent = `Calculando raiz no intervalo [${a}, ${b}]...\n`;
+
+  let fa = calcularPolinomio(a, coefs);
+  let fb = calcularPolinomio(b, coefs);
+
+
+  if (a === b && Math.abs(fa) < (tolerancia || 1e-12)) {
+      tabela.style.display = 'table';
+      document.getElementById('raiz-final').textContent =
+          `Raiz Encontrada: ${a.toFixed(8)} (exata no ponto)`;
+      logFinal.textContent += `Raiz exata identificada em x=${a}.`;
+      return;
+  }
+
+  if (fa * fb >= 0) {
+      logFinal.textContent += 'Erro: Intervalo inválido. f(a) e f(b) devem ter sinais opostos.';
+      return;
+  }
+
+  let iter = 0;
+  let m, fm;
+  const maxIter = 100;
+
+  while ((b - a) / 2 > tolerancia && iter < maxIter) {
+      m = (a + b) / 2;
+      fm = calcularPolinomio(m, coefs);
+
+      const row = tabelaBody.insertRow();
+      row.innerHTML = `
+    <td>${iter + 1}</td>
+    <td>${a.toFixed(6)}</td>
+    <td>${b.toFixed(6)}</td>
+    <td>${m.toFixed(6)}</td>
+    <td>${fm.toFixed(6)}</td>
+  `;
+
+      if (Math.abs(fm) < tolerancia) break;
+
+      if (fa * fm < 0) {
+          b = m;
+          fb = fm;
+      } else {
+          a = m;
+          fa = fm;
       }
-  
-      x0 = x1; f0 = f1;
-    }
-    return out;
+
+      iter++;
   }
-  
-  // Bissecção em um intervalo [a,b]
-  function bisseccao(coeffs, a, b, tol=1e-6, maxIter=100){
-    let fa = f(coeffs, a), fb = f(coeffs, b);
-    if (fa === 0) return {root:a, froot:0, iters:0};
-    if (fb === 0) return {root:b, froot:0, iters:0};
-    if (fa*fb > 0) throw new Error('Sem troca de sinal em ['+a+','+b+']');
-  
-    let m=a, fm=fa, k=0;
-    while (k < maxIter){
-      m = (a+b)/2; fm = f(coeffs, m);
-      const err = Math.abs(b-a)/2;
-      if (Math.abs(fm) <= tol || err <= tol) break;
-      if (fa*fm < 0){ b=m; fb=fm; } else { a=m; fa=fm; }
-      k++;
-    }
-    return {root:m, froot:fm, iters:k+1};
-  }
-  
-  // ===== UI =====
-  
+
+  const raiz = (a + b) / 2;
+  tabela.style.display = 'table';
+  document.getElementById('raiz-final').textContent =
+      `Raiz Encontrada: ${raiz.toFixed(8)} | Erro: ${((b - a) / 2).toExponential(3)} | Iterações: ${iter + 1}`;
+  logFinal.textContent += `Cálculo concluído. Raiz: ${raiz.toFixed(8)}.`;
+}

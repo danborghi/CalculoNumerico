@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sistemas Lineares — Eliminação de Gauss</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="./gauss.css" />
+</head>
+<body>
+  <main class="container">
+    <header class="topo">
+      <h1>Eliminação de Gauss</h1>
+      <p>Resolva sistemas lineares <code>Ax = b</code> por eliminação (pivotamento parcial opcional) e substituição retroativa.</p>
+      <nav class="voltar">
+        <a href="./index.html">← Voltar ao menu</a>
+        <a href="./bisseccao.html" title="Tela existente de Bissecção">Ir para Bissecção</a>
+      </nav>
+    </header>
+
+    <section class="painel">
+      <div class="controles">
+        <label>
+          Dimensão (n):
+          <input id="dim-n" type="number" min="2" max="10" step="1" value="3" />
+        </label>
+
+        <button id="btn-gerar" class="btn">Gerar matriz</button>
+
+        <label class="check">
+          <input id="chk-pivot" type="checkbox" checked />
+          Usar pivotamento parcial
+        </label>
+
+        <label>
+          Casas decimais:
+          <input id="decimais" type="number" min="0" max="12" step="1" value="6" />
+        </label>
+
+        <div class="acoes">
+          <button id="btn-resolver" class="btn primario">Resolver</button>
+          <button id="btn-limpar" class="btn">Limpar</button>
+        </div>
+      </div>
+
+      <div class="grid-matrizes">
+        <div>
+          <h2>Matriz A</h2>
+          <div id="matriz-a" class="matriz"></div>
+        </div>
+        <div>
+          <h2>Vetor b</h2>
+          <div id="vetor-b" class="vetor"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="resultados">
+      <h2>Resultados</h2>
+
+      <div class="bloco">
+        <h3>Passos da eliminação</h3>
+        <pre id="log-passos" class="log" aria-live="polite"></pre>
+      </div>
+
+      <div class="bloco duo">
+        <div>
+          <h3>Matriz triangular superior U</h3>
+          <div id="saida-u"></div>
+        </div>
+        <div>
+          <h3>Vetor b′ após eliminação</h3>
+          <div id="saida-bp"></div>
+        </div>
+      </div>
+
+      <div class="bloco">
+        <h3>Solução x</h3>
+        <div id="saida-x"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="./gauss.js"></script>
+</body>
+</html>
